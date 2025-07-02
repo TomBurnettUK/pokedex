@@ -1,19 +1,13 @@
 import { State } from "../state.js";
 
 export async function commandMapB(state: State) {
-  try {
-    const locations = await state.pokeAPI.getPreviousLocations();
+  const locations = await state.pokeAPI.getPreviousLocations();
 
-    if (locations.length === 0) {
-      return console.log("you're on the first page");
-    }
+  if (locations.length === 0) {
+    return console.log("you're on the first page");
+  }
 
-    for (const location of locations) {
-      console.log(location.name);
-    }
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error(error.message);
-    }
+  for (const location of locations) {
+    console.log(location.name);
   }
 }
