@@ -1,16 +1,9 @@
 export async function commandMap(state) {
-    try {
-        const locations = await state.pokeAPI.getNextLocations();
-        if (locations.length === 0) {
-            return console.log("you're on the last page");
-        }
-        for (const location of locations) {
-            console.log(location.name);
-        }
+    const locations = await state.pokeAPI.getNextLocations();
+    if (locations.length === 0) {
+        return console.log("you're on the last page");
     }
-    catch (error) {
-        if (error instanceof Error) {
-            console.error(error.message);
-        }
+    for (const location of locations) {
+        console.log(location.name);
     }
 }

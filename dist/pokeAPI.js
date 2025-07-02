@@ -15,16 +15,11 @@ export class PokeAPI {
         }
         const currentLocationsURL = this.#nextLocationsURL;
         let locationsResponse = this.#cache.get(currentLocationsURL);
-        if (locationsResponse) {
-            console.log("fetching from cache...");
-        }
-        else {
+        if (!locationsResponse) {
             locationsResponse = await this.fetchLocations(currentLocationsURL);
             this.#cache.add(currentLocationsURL, locationsResponse);
         }
         this.#setURLs(locationsResponse.next, locationsResponse.previous);
-        console.log("Prev: " + this.#previousLocationsURL);
-        console.log("Next: " + this.#nextLocationsURL);
         return locationsResponse.results;
     }
     async getPreviousLocations() {
@@ -33,16 +28,11 @@ export class PokeAPI {
         }
         const currentLocationsURL = this.#previousLocationsURL;
         let locationsResponse = this.#cache.get(currentLocationsURL);
-        if (locationsResponse) {
-            console.log("fetching from cache...");
-        }
-        else {
+        if (!locationsResponse) {
             locationsResponse = await this.fetchLocations(currentLocationsURL);
             this.#cache.add(currentLocationsURL, locationsResponse);
         }
         this.#setURLs(locationsResponse.next, locationsResponse.previous);
-        console.log("Prev: " + this.#previousLocationsURL);
-        console.log("Next: " + this.#nextLocationsURL);
         return locationsResponse.results;
     }
     async fetchLocations(url) {

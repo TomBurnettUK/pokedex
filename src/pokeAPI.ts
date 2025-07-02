@@ -15,52 +15,30 @@ export class PokeAPI {
   }
 
   async getNextLocations(): Promise<Location[]> {
-    if (!this.#nextLocationsURL) {
-      return [];
-    }
-
-    const currentLocationsURL = this.#nextLocationsURL;
-
-    let locationsResponse =
-      this.#cache.get<LocationsResponse>(currentLocationsURL);
-
-    if (!locationsResponse) {
-      locationsResponse = await this.fetchLocations(currentLocationsURL);
-      this.#cache.add(currentLocationsURL, locationsResponse);
-    }
-
-    this.#setURLs(locationsResponse.next, locationsResponse.previous);
-    return locationsResponse.results;
+    return this.#getLocationsByURL(this.#nextLocationsURL);
   }
 
   async getPreviousLocations(): Promise<Location[]> {
-    if (!this.#previousLocationsURL) {
+    return this.#getLocationsByURL(this.#previousLocationsURL);
+  }
+
+  async #getLocationsByURL(url: string | null): Promise<Location[]> {
+    if (!url) {
       return [];
     }
 
-    const currentLocationsURL = this.#previousLocationsURL;
-
-    let locationsResponse =
-      this.#cache.get<LocationsResponse>(currentLocationsURL);
+    let locationsResponse = this.#cache.get<LocationsResponse>(url);
 
     if (!locationsResponse) {
-      locationsResponse = await this.fetchLocations(currentLocationsURL);
-      this.#cache.add(currentLocationsURL, locationsResponse);
+      const response = await fetch(url);
+      const locationsResponse = (await response.json()) as LocationsResponse;
+      this.#cache.add(url, locationsResponse);
     }
 
-    this.#setURLs(locationsResponse.next, locationsResponse.previous);
+    this.#nextLocationsURL = locationsResponse.next;
+    this.#previousLocationsURL = locationsResponse.previous;
+
     return locationsResponse.results;
-  }
-
-  async fetchLocations(url: string): Promise<LocationsResponse> {
-    const response = await fetch(url);
-    const locationsResponse = (await response.json()) as LocationsResponse;
-    return locationsResponse;
-  }
-
-  #setURLs(next: string | null, previous: string | null) {
-    this.#nextLocationsURL = next;
-    this.#previousLocationsURL = previous;
   }
 }
 
