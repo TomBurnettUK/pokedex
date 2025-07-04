@@ -1,3 +1,4 @@
+import { State } from "src/state.js";
 import { Cache } from "./pokecache.js";
 
 export class PokeAPI {
@@ -22,7 +23,7 @@ export class PokeAPI {
     return this.#getLocations(this.#previousLocationsURL);
   }
 
-  async getPokemoninLocation(location: string): Promise<Pokemon[]> {
+  async getPokemoninLocation(location: string): Promise<string[]> {
     if (!location) {
       return [];
     }
@@ -30,7 +31,18 @@ export class PokeAPI {
     const url = this.#baseURL + "/location-area/" + location;
     const locationResults = await this.#fetchFromUrl<LocationResponse>(url);
 
-    return locationResults.pokemon_encounters.map((pe) => pe.pokemon);
+    return locationResults.pokemon_encounters.map((pe) => pe.pokemon.name);
+  }
+
+  async catchPokemon(pokemon: string, state: State): Promise<boolean> {
+    const url = this.#baseURL + "/pokemon/" + pokemon;
+    const pokemonDetails = await this.#fetchFromUrl<Pokemon>(url);
+
+    if (Math.random() > 0.5) {
+      state.pokedex[pokemonDetails.name] = pokemonDetails;
+      return true;
+    }
+    return false;
   }
 
   async #getLocations(url: string | null): Promise<Location[]> {
@@ -51,8 +63,6 @@ export class PokeAPI {
       const response = await fetch(url);
       typedResponse = (await response.json()) as T;
       this.#cache.add(url, typedResponse);
-    } else {
-      console.log("retrieving from cache...");
     }
 
     return typedResponse;
@@ -74,11 +84,20 @@ export type Location = {
 type LocationResponse = {
   location: Location;
   pokemon_encounters: {
-    pokemon: Pokemon;
+    pokemon: { name: string };
   }[];
 };
 
 export type Pokemon = {
   name: string;
-  url: string;
+  base_experience: number;
+  weight: number;
+  height: number;
+  stats: {
+    stat: { name: string };
+    base_stat: number;
+  }[];
+  types: {
+    type: { name: string };
+  }[];
 };
