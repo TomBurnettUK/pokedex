@@ -45,6 +45,10 @@ export class PokeAPI {
     return false;
   }
 
+  inspectPokemon(pokemon: string, state: State): Pokemon | undefined {
+    return state.pokedex[pokemon];
+  }
+
   async #getLocations(url: string | null): Promise<Location[]> {
     if (!url) return [];
 

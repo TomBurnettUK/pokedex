@@ -2,6 +2,7 @@ import { commandCatch } from "./commands/commandCatch.js";
 import { commandExit } from "./commands/commandExit.js";
 import { commandExplore } from "./commands/commandExplore.js";
 import { commandHelp } from "./commands/commandHelp.js";
+import { commandInspect } from "./commands/commandInspect.js";
 import { commandMap } from "./commands/commandMap.js";
 import { commandMapB } from "./commands/commandMapB.js";
 import { CLICommand } from "./state.js";
@@ -38,6 +39,11 @@ export function getCommands(): Record<string, CLICommand> {
       name: "catch",
       description: "Attempts to catch pokemon (e.g: 'catch squirtle')",
       callback: commandCatch,
+    },
+    inspect: {
+      name: "inspect",
+      description: "Inspects pokemon (e.g: 'inspect pidgey')",
+      callback: commandInspect,
     },
   };
 }

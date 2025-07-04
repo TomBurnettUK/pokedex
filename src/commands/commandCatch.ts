@@ -1,4 +1,4 @@
-import { State } from "src/state";
+import { State } from "../state";
 
 export async function commandCatch(state: State, pokemon: string) {
   console.log(`Throwing a Pokeball at ${pokemon}...`);
