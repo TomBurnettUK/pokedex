@@ -18,7 +18,7 @@ export function startREPL(state: State) {
       const command = commands[words[0]];
       if (command) {
         try {
-          await command.callback(state);
+          await command.callback(state, ...words.slice(1));
         } catch (error: unknown) {
           if (error instanceof Error) {
             console.error(error.message);

@@ -15,30 +15,47 @@ export class PokeAPI {
   }
 
   async getNextLocations(): Promise<Location[]> {
-    return this.#getLocationsByURL(this.#nextLocationsURL);
+    return this.#getLocations(this.#nextLocationsURL);
   }
 
   async getPreviousLocations(): Promise<Location[]> {
-    return this.#getLocationsByURL(this.#previousLocationsURL);
+    return this.#getLocations(this.#previousLocationsURL);
   }
 
-  async #getLocationsByURL(url: string | null): Promise<Location[]> {
-    if (!url) {
+  async getPokemoninLocation(location: string): Promise<Pokemon[]> {
+    if (!location) {
       return [];
     }
 
-    let locationsResponse = this.#cache.get<LocationsResponse>(url);
+    const url = this.#baseURL + "/location-area/" + location;
+    const locationResults = await this.#fetchFromUrl<LocationResponse>(url);
 
-    if (!locationsResponse) {
+    return locationResults.pokemon_encounters.map((pe) => pe.pokemon);
+  }
+
+  async #getLocations(url: string | null): Promise<Location[]> {
+    if (!url) return [];
+
+    const response = await this.#fetchFromUrl<LocationsResponse>(url);
+
+    this.#nextLocationsURL = response.next;
+    this.#previousLocationsURL = response.previous;
+
+    return response.results;
+  }
+
+  async #fetchFromUrl<T>(url: string): Promise<T> {
+    let typedResponse = this.#cache.get<T>(url);
+
+    if (!typedResponse) {
       const response = await fetch(url);
-      const locationsResponse = (await response.json()) as LocationsResponse;
-      this.#cache.add(url, locationsResponse);
+      typedResponse = (await response.json()) as T;
+      this.#cache.add(url, typedResponse);
+    } else {
+      console.log("retrieving from cache...");
     }
 
-    this.#nextLocationsURL = locationsResponse.next;
-    this.#previousLocationsURL = locationsResponse.previous;
-
-    return locationsResponse.results;
+    return typedResponse;
   }
 }
 
@@ -50,6 +67,18 @@ type LocationsResponse = {
 };
 
 export type Location = {
+  name: string;
+  url: string;
+};
+
+type LocationResponse = {
+  location: Location;
+  pokemon_encounters: {
+    pokemon: Pokemon;
+  }[];
+};
+
+export type Pokemon = {
   name: string;
   url: string;
 };
